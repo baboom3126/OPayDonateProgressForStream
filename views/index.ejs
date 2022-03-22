@@ -1,0 +1,289 @@
+<html>
+
+<head>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="./stylesheets/w3.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/8.2.3/firebase.js"></script>
+  <style>
+  body,html{
+    overflow: hidden;
+  }
+  </style>
+</head>
+
+<body>
+  <br><br>
+  <div style="width: 90%;text-align: center;display: none;padding-left: 20px;" id='div_progress_show'>
+    <span id="donate_text" style="">&nbsp</span>
+    <div class="w3-border" id="div_progress_outer" style="background: white;">
+      <div id="div_progress" class="w3-center" style="font-size: 16px;height:24px;width:0%;background-color: red;">&nbsp&nbsp&nbsp0/100$&nbsp&nbsp0%</div>
+    </div>
+  </div>
+  <br><br><br><br>
+
+  <label for="favcolor">斗內條顏色</label>
+  <input type="color" id="favcolor" name="" value="#ff0000">
+  <br><br>
+  <label for="fontColor">百分比字體顏色</label>
+  <input type="color" id="fontColor" name="" value="#000000">
+  <br><br>
+  <label for="goalColor">斗內目標字體顏色</label>
+  <input type="color" id="goalColor" name="" value="#000000">
+  <br><br>
+
+  <label for="donateThingName">斗內目標文字</label>
+  <input type="text" id="donateThingName" placeholder="請輸入上方預顯示的斗內目標">
+  <button id="btn_updateDonateThingName">更新</button>
+  <br><br>
+  <label for="input_progressUpTextFontSize">進度條上文字大小</label>
+  <input type="number" id="input_progressUpTextFontSize" style="width: 100px;text-align: right;" value="0">
+  <button id="btn_progressUpTextFontSize">更新</button>
+  <br><br>
+  <label for="input_progressInnerTextFontSize">進度條內文字大小</label>
+  <input type="number" id="input_progressInnerTextFontSize" style="width: 100px;text-align: right;" value="0">
+  <button id="btn_progressInnerTextFontSize">更新</button>
+  <br><br>
+  <label for="input_borderRadius">邊框圓潤度 數字越大越圓</label>
+  <input type="number" id="input_borderRadius" style="width: 100px;text-align: right;" value="0">
+  <button id="btn_borderRadius">更新</button>
+  <br><br>
+  <label for="input_progressHeight">斗內條高度</label>
+  <input type="number" id="input_progressHeight" style="width: 100px;text-align: right;" value="24">
+  <button id="btn_progressHeight">更新</button>
+<br><br>
+  <label for="input_currMoney">目前金額</label>
+  <input type="number" id="input_currMoney" style="width: 100px;text-align: right;" value="0">
+  <button id="btn_currMoney">更新</button>
+
+  <br><br>
+
+  <label for="input_maxMoney">目標金額</label>
+  <input type="number" id="input_maxMoney" style="width: 100px;text-align: right;" value="100">
+  <button id="btn_maxMoney">更新</button>
+
+</body>
+<script>
+  const channel = 'grilledbeer3126'
+  const firebaseConfig = {
+    apiKey: "AIzaSyDevPzqFdjfyLbbKExcvj2xmLDkULAqCcY",
+    authDomain: "donate-dfa43.firebaseapp.com",
+    databaseURL: "https://donate-dfa43-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "donate-dfa43",
+    storageBucket: "donate-dfa43.appspot.com",
+    messagingSenderId: "128954569548",
+    appId: "1:128954569548:web:c56e261d8ceeee3de775e9"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  const database = firebase.database();
+
+  let progressCurrMoney = 0
+  let progressMaxMoney = 100
+  
+
+  database.ref(channel).on("value", snapshot => {
+    let donateThingName = snapshot.child('donateThingName').val();
+    let currColor = snapshot.child('currColor').val();
+    let fontColorValue = snapshot.child('fontColorValue').val();
+    let goalColorValue = snapshot.child('goalColorValue').val();
+    let progressBorderRadius = snapshot.child('progressBorderRadius').val();
+    let progressHeight = snapshot.child('progressHeight').val();
+    let progressUpTextFontSize = snapshot.child('progressUpTextFontSize').val();
+    let progressInnerTextFontSize = snapshot.child('progressInnerTextFontSize').val();
+    let currMoney = snapshot.child('currMoney').val();
+    let maxMoney = snapshot.child('maxMoney').val();
+
+    if (donateThingName == null) {
+      database.ref(`${channel}/donateThingName/`).set('請輸入斗內目標')
+    } else {
+      document.getElementById('donate_text').innerText = donateThingName
+      document.getElementById('donateThingName').value = donateThingName
+
+    }
+
+
+    if (currColor == null) {
+      database.ref(`${channel}/currColor/`).set('#ff0000')
+    } else {
+      document.getElementById('div_progress').style.background = currColor
+      document.getElementById('favcolor').value = currColor
+    }
+
+
+    if (fontColorValue == null) {
+      database.ref(`${channel}/fontColorValue/`).set('#000000')
+    } else {
+      document.getElementById('div_progress').style.color = fontColorValue
+      document.getElementById('fontColor').value = fontColorValue
+    }
+
+
+    if (goalColorValue == null) {
+      database.ref(`${channel}/goalColorValue/`).set('#000000')
+    } else {
+      document.getElementById('donate_text').style.color = goalColorValue
+      document.getElementById('goalColor').value = goalColorValue
+    }
+
+    if (progressBorderRadius == null) {
+      database.ref(`${channel}/progressBorderRadius/`).set('0')
+    } else {
+      $('#div_progress_outer').css('border-radius', progressBorderRadius + 'px');
+      $('#div_progress').css('border-radius', progressBorderRadius + 'px');
+      $('#input_borderRadius').val(parseInt(progressBorderRadius))
+    }
+
+    if (progressHeight == null) {
+      database.ref(`${channel}/progressHeight/`).set('24')
+    } else {
+      $('#div_progress').css('height', progressHeight + 'px')
+    }
+
+    if(progressInnerTextFontSize == null){
+      database.ref(`${channel}/progressInnerTextFontSize/`).set('16')
+    }else{
+      $('#div_progress').css('font-size', progressInnerTextFontSize+'px')
+      $('#input_progressInnerTextFontSize').val(progressInnerTextFontSize)
+    }
+
+    if(progressUpTextFontSize == null){
+      database.ref(`${channel}/progressUpTextFontSize/`).set('16')
+    }else{
+      $('#donate_text').css('font-size', progressUpTextFontSize+'px')
+      $('#input_progressUpTextFontSize').val(progressUpTextFontSize)
+    }
+
+    if(currMoney==null){
+      database.ref(`${channel}/currMoney/`).set(0)
+    }else{
+      $('#input_currMoney').val(currMoney)
+      progressCurrMoney = currMoney
+
+    }
+
+    if(maxMoney==null){
+      database.ref(`${channel}/maxMoney/`).set(100)
+    }else{
+      $('#input_maxMoney').val(maxMoney)
+      progressMaxMoney = maxMoney
+    }
+
+    if(currMoney!=null && maxMoney!=null){
+      $('#div_progress').html(`&nbsp&nbsp&nbsp${currMoney}/${maxMoney}&nbsp&nbsp${(currMoney*100/maxMoney).toFixed(2)}%`)
+      $('#div_progress').css('width',`${currMoney*100/maxMoney}%`)
+
+    }
+
+    ////
+    $('#div_progress_show').show()
+    ////
+
+        const favcolor = document.getElementById('favcolor')
+        favcolor.addEventListener('change', (event) => {
+            let currColor = favcolor.value;
+            console.log(currColor);
+            database.ref(`${channel}/currColor/`).set(currColor)
+
+            document.getElementById('div_progress').style.background = currColor
+        })
+
+        const fontColor = document.getElementById('fontColor')
+        fontColor.addEventListener('change',(event)=>{
+            let fontColorValue = fontColor.value;
+            database.ref(`${channel}/fontColorValue/`).set(fontColorValue)
+            document.getElementById('div_progress').style.color = fontColorValue
+        })
+
+        const goalColor = document.getElementById('goalColor')
+        goalColor.addEventListener('change',(event)=>{
+            let goalColorValue = goalColor.value
+            database.ref(`${channel}/goalColorValue/`).set(goalColorValue)
+            document.getElementById('donate_text').style.color = goalColorValue;
+        })
+
+////
+    $('#btn_updateDonateThingName').click(() => {
+      let donateThingName = document.getElementById('donateThingName').value
+
+      database.ref(`${channel}/donateThingName/`).set(donateThingName)
+      document.getElementById('donate_text').innerText = donateThingName
+
+    })
+
+    $('#btn_borderRadius').click(() => {
+      let progressBorderRadius = document.getElementById('input_borderRadius').value
+      database.ref(`${channel}/progressBorderRadius/`).set(progressBorderRadius)
+
+    })
+
+    $('#btn_progressHeight').click(() => {
+      let progressHeight = document.getElementById('input_progressHeight').value
+      database.ref(`${channel}/progressHeight/`).set(progressHeight)
+      $('#div_progress').css('height', progressHeight + 'px')
+
+    })
+
+    $('#btn_progressInnerTextFontSize').click(() => {
+      let progressInnerTextFontSize = document.getElementById('input_progressInnerTextFontSize').value
+      database.ref(`${channel}/progressInnerTextFontSize/`).set(progressInnerTextFontSize)
+      $('#div_progress').css('font-size', progressInnerTextFontSize + 'px')
+
+    })
+
+    $('#btn_progressUpTextFontSize').click(() => {
+      let progressUpTextFontSize = document.getElementById('input_progressUpTextFontSize').value
+      database.ref(`${channel}/progressUpTextFontSize/`).set(progressUpTextFontSize)
+      $('#donate_text').css('font-size', progressUpTextFontSize + 'px')
+
+    })
+
+
+    $('#btn_currMoney').click(()=>{
+      currMoney = $('#input_currMoney').val()
+      database.ref(`${channel}/currMoney/`).set(currMoney)
+      $('#div_progress').css('width',`${currMoney*100/maxMoney}%`)
+    })
+
+    $('#btn_maxMoney').click(()=>{
+      maxMoney = $('#input_maxMoney').val()
+      database.ref(`${channel}/maxMoney/`).set(maxMoney)
+      $('#div_progress').css('width',`${currMoney*100/maxMoney}%`)
+
+    })
+
+
+  })
+
+ let donateList = []
+
+
+  const getOpayDonateStatus = function () {
+    var settings = {
+      "url": "./getOpayStatus",
+      "method": "POST",
+      "timeout": 0,
+    };
+
+    $.ajax(settings).done(function (response) {
+      let jsonData = JSON.parse(response)
+      console.log(jsonData.lstDonate)
+
+      if(jsonData.lstDonate.length!=0){
+        for(let perDonate of jsonData.lstDonate){
+          if(!donateList.includes(perDonate.donateid)){
+          donateList.push(perDonate.donateid)
+          progressCurrMoney = parseInt(progressCurrMoney)+parseInt(perDonate.amount)
+          database.ref(`${channel}/currMoney/`).set(parseInt(progressCurrMoney))
+
+        }
+        }
+
+      }
+    });
+  }
+  setInterval(getOpayDonateStatus, 5000);
+</script>
+
+
+</html>
