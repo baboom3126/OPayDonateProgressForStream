@@ -7,5 +7,6 @@ modify ./views/index.ejs channel name variable at line 68, and firebase config a
 
 ### run
 $ npm install
+
 $ npm start 
 
